@@ -21,6 +21,5 @@ request(url, (error, response, body) => {
     }
   });
 
-  const output = JSON.stringify(completedTasks, null, 2);
-  console.log(output.trim());
+  console.log(completedTasks);
 });
