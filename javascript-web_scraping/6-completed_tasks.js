@@ -21,5 +21,12 @@ request(url, (error, response, body) => {
     }
   });
 
-  console.log(completedTasks);
+  let output = '{';
+  for (const userId in completedTasks) {
+    if (completedTasks[userId] > 0) {
+      output += `'${userId}': ${completedTasks[userId]},\n`;
+    }
+  }
+  output = output.slice(0, output.length - 2) + ' }';
+  console.log(output);
 });
