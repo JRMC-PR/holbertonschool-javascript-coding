@@ -24,7 +24,7 @@ request(url, (error, response, body) => {
   let output = '{';
   for (const userId in completedTasks) {
     if (completedTasks[userId] > 0) {
-      output += `'${userId}': ${completedTasks[userId]},\n`;
+      output += `  '${userId}': ${completedTasks[userId]},\n`;
     }
   }
   output = output.slice(0, output.length - 2) + ' }';
