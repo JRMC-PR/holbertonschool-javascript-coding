@@ -1,40 +1,48 @@
-import { readDatabase } from '../utils';
+import readDatabase from '../utils';
 
 class StudentsController {
-  static getAllStudents(req, res) {
-    readDatabase('./database.csv')
-      .then((data) => {
-        const response = ['This is the list of our students'];
-        Object.keys(data).sort().forEach((field) => {
-          const names = data[field].join(', ');
-          response.push(`Number of students in ${field}: ${data[field].length}. List: ${names}`);
-        });
+  static getAllStudents(request, response, DATABASE) {
+    readDatabase(DATABASE)
+      .then((fields) => {
+        const students = [];
+        // let count = 0;
+        let msg;
 
-        res.status(200).send(response.join('\n'));
+        // for (const key of Object.keys(fields)) {
+        //   count += fields[key].length;
+        // }
+
+        // students.push(`Number of students: ${count}`);
+        students.push('This is the list of our students');
+
+        for (const key of Object.keys(fields)) {
+          msg = `Number of students in ${key}: ${
+            fields[key].length
+          }. List: ${fields[key].join(', ')}`;
+
+          students.push(msg);
+        }
+        response.send(200, `${students.join('\n')}`);
       })
       .catch(() => {
-        res.status(500).send('Cannot load the database');
+        response.send(500, 'Cannot load the database');
       });
   }
 
-  static getAllStudentsByMajor(req, res) {
-    const { major } = req.params;
+  static getAllStudentsByMajor(request, response, DATABASE) {
+    const { major } = request.params;
+
     if (major !== 'CS' && major !== 'SWE') {
-      return res.status(500).send('Major parameter must be CS or SWE');
+      response.send(500, 'Major parameter must be CS or SWE');
+    } else {
+      readDatabase(DATABASE)
+        .then((fields) => {
+          const students = fields[major];
+
+          response.send(200, `List: ${students.join(', ')}`);
+        })
+        .catch(() => response.send(500, 'Cannot load the database'));
     }
-
-    readDatabase('./database.csv')
-      .then((data) => {
-        if (!data[major]) {
-          return res.status(500).send('Cannot load the database');
-        }
-
-        const names = data[major].join(', ');
-        res.status(200).send(`List: ${names}`);
-      })
-      .catch(() => {
-        res.status(500).send('Cannot load the database');
-      });
   }
 }
 
