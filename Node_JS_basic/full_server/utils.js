@@ -1,24 +1,22 @@
-const fs = require('fs').promises;
+const fs = require('fs');
 const csv = require('csv-parser');
 
-function readDatabase() {
-  const filePath = process.argv[2];
+function readDatabase(filePath) {
   return new Promise((resolve, reject) => {
-    const results = {};
-
+    const data = {};
     fs.createReadStream(filePath)
-      .on('error', (err) => {
-        reject(err);
-      })
       .pipe(csv())
-      .on('data', (data) => {
-        if (!results[data.field]) {
-          results[data.field] = [];
-        }
-        results[data.field].push(data.firstname);
+      .on('data', (row) => {
+        if (!data[row.field]) data[row.field] = [];
+        data[row.field].push(row.firstname);
       })
       .on('end', () => {
-        resolve(results);
+        resolve(data);
+      })
+      .on('error', (err) => {
+        reject(err);
       });
   });
 }
+
+module.exports = readDatabase;
