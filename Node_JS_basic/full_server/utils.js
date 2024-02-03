@@ -1,22 +1,25 @@
-const fs = require('fs');
-const csv = require('csv-parser');
+import fs from 'fs';
 
-function readDatabase(filePath) {
+export const readDatabase = (filePath) => {
   return new Promise((resolve, reject) => {
-    const data = {};
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        if (!data[row.field]) data[row.field] = [];
-        data[row.field].push(row.firstname);
-      })
-      .on('end', () => {
-        resolve(data);
-      })
-      .on('error', (err) => {
+    fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
+      if (err) {
         reject(err);
-      });
-  });
-}
+        return;
+      }
 
-module.exports = readDatabase;
+      try {
+        const students = data.split('\n').reduce((acc, line) => {
+          const [field, name] = line.split(',');
+          if (!acc[field]) acc[field] = [];
+          acc[field].push(name);
+          return acc;
+        }, {});
+
+        resolve(students);
+      } catch (parseError) {
+        reject(parseError);
+      }
+    });
+  });
+};
